@@ -1,14 +1,27 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import RegisterForm
-from django.http import Http404
+from .forms import RegisterForm, AddRecordForm
 from .models import Customer
 
 
-# Create your views here.
+from django.shortcuts import render
+from .models import Customer  # Assuming Customer model is imported from models.py
+
+
+# Define your view function
 def home(request):
-    customers = Customer.objects.all()
+    if not request.user.is_authenticated:
+        return redirect("login")
+    else:
+        customers = Customer.objects.all()
+        loggedInUser = request.user
+        return render(
+            request, "home.html", {"customers": customers, "loggedInUser": loggedInUser}
+        )
+
+
+def login_user(request):
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
@@ -17,17 +30,8 @@ def home(request):
             login(request, user)
             messages.success(request, "User Logged In!")
             return redirect("home")
-        else:
-            raise Http404("User not found!")
-            return redirect("home")
     else:
-        return render(request, "home.html", {"customers": customers})
-
-
-def logout_user(request):
-    logout(request)
-    messages.success(request, "Successfully logged out")
-    return redirect("home")
+        return render(request, "login.html")
 
 
 # Create your views here.
@@ -49,8 +53,28 @@ def register(request):
     return render(request, "register.html", {"form": form})
 
 
+def logout_user(request):
+    logout(request)
+    messages.success(request, "Successfully logged out")
+    return redirect("home")
+
+
 def customer_records(request, id):
     if request.user.is_authenticated:
         customer = Customer.objects.get(id=id)
         print("🚀 ~ customer:", customer)
         return render(request, "customer.html", {"customer": customer})
+
+
+def add_record(request):
+    form = AddRecordForm(request.POST or None)
+    if request.user.is_authenticated:
+        if request.method == "POST":
+            if form.is_valid():
+                add_record = form.save()
+                messages.success(request, "New Customer Added")
+
+        return render(request, "add_record.html", {"form": form})
+    else:
+        messages.success(request, "You must be logged in")
+        return redirect("home")
