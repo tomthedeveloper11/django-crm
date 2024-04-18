@@ -26,12 +26,18 @@
         <li class="nav-item">
           <a class="nav-link" href={% url "login" %}>Login</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href={% url "register" %}>register</a>
+        </li>
         {% endif %}
       </ul>
-    </div>
-    {% if user.is_authenticated %}
+      {% if user.is_authenticated %}
       <p class="navbar-brand my-auto">Hey, {{user}}!</p>
     {% endif %}
+
+
+    </div>
+   
 
   </div>
 </nav>

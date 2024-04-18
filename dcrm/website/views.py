@@ -6,10 +6,9 @@ from .models import Customer
 
 
 from django.shortcuts import render
-from .models import Customer  # Assuming Customer model is imported from models.py
+from .models import Customer
 
 
-# Define your view function
 def home(request):
     if not request.user.is_authenticated:
         return redirect("login")
@@ -28,13 +27,12 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request, "User Logged In!")
+            messages.success(request, "Successfully Logged In!")
             return redirect("home")
     else:
         return render(request, "login.html")
 
 
-# Create your views here.
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -62,7 +60,6 @@ def logout_user(request):
 def customer_records(request, id):
     if request.user.is_authenticated:
         customer = Customer.objects.get(id=id)
-        print("🚀 ~ customer:", customer)
         return render(request, "customer.html", {"customer": customer})
 
 
